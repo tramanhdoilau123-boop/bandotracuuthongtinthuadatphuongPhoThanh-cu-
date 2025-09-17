@@ -1,0 +1,1196 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/L.Control.Locate.min.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/leaflet-search.css">
+        <link rel="stylesheet" href="css/leaflet.photon.css">
+        <link rel="stylesheet" href="css/leaflet-measure.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title>Bản đồ tra cứu thông tin thửa đất phường Phổ Thạnh (cũ)</title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/L.Control.Locate.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet.photon.js"></script>
+        <script src="js/leaflet-measure.js"></script>
+        <script src="js/leaflet-search.js"></script>
+        <script src="data/That_0.js"></script>
+        <script src="data/Quyhoch_1.js"></script>
+        <script src="data/Ranhgiikhudulch_2.js"></script>
+        <script>
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:28, minZoom:1
+        }).fitBounds([[14.614869263506971,108.98027768967039],[14.722085353509744,109.20633570017701]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // add class to format popup if it contains media
+		function addClassToPopupIfMedia(content, popup) {
+			var tempDiv = document.createElement('div');
+			tempDiv.innerHTML = content;
+			if (tempDiv.querySelector('td img')) {
+				popup._contentNode.classList.add('media');
+					// Delay to force the redraw
+					setTimeout(function() {
+						popup.update();
+					}, 10);
+			} else {
+				popup._contentNode.classList.remove('media');
+			}
+		}
+        var title = new L.Control({'position':'topright'});
+        title.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'info');
+            this.update();
+            return this._div;
+        };
+        title.update = function () {
+            this._div.innerHTML = '<h2>Bản đồ tra cứu thông tin thửa đất phường Phổ Thạnh (cũ)</h2>';
+        };
+        title.addTo(map);
+        var abstract = new L.Control({'position':'topright'});
+        abstract.onAdd = function (map) {
+            this._div = L.DomUtil.create('div',
+            'leaflet-control abstract');
+            this._div.id = 'abstract'
+                this._div.setAttribute("onmouseenter", "abstract.show()");
+                this._div.setAttribute("onmouseleave", "abstract.hide()");
+                this.hide();
+                return this._div;
+            };
+            abstract.hide = function () {
+                this._div.classList.remove("abstractUncollapsed");
+                this._div.classList.add("abstract");
+                this._div.innerHTML = 'i'
+            }
+            abstract.show = function () {
+                this._div.classList.remove("abstract");
+                this._div.classList.add("abstractUncollapsed");
+                this._div.innerHTML = 'Bản đồ tra cứu thông tin thửa đất tại phường Phổ Thạnh (cũ), thị xã Đức Phổ, tỉnh Quảng Ngãi có nguồn gốc từ bản đồ địa chính được UBND phường Phổ Thạnh đo vẽ.<br />Nếu bạn đang tìm kiếm thông tin 1 thửa đất cụ thể tại phường Phổ Thạnh (cũ), thị xã Đức Phổ, tỉnh Quảng Ngãi thì bản đồ tra cứu trực tuyến này chính là 1 công cụ tìm kiếm nhanh chóng và dễ sử dụng cho tất cả mọi người. Được phát triển đề giúp mọi người dễ dàng tiếp cận dữ liệu quy hoạch và thông tin địa chính, bản đồ này giúp tiết kiệm thời gian và công sức cho việc tìm kiếm thông tin thửa đất.<br />Cách sử dụng đơn giản và hiệu quả:<br />Bước 1: Nhấp chọn vào biểu tượng ống nhòm phía cuối hàng ở góc trái bên trên màn hình để thực hiện tra cứu<br />Bước 2: Nhập số tờ_số thửa (ví dụ: 1_10)<br />Bước 3: Nhấn nút Enter và sau đó ứng dụng sẽ khoanh vùng thửa đất vừa tìm kiếm để xem thông tin thửa đất.<br />Sau khi tra cứu sẽ bao gồm những nội dung sau:<br />- Số tờ<br />- Số thửa<br />- Mã đất<br />- Diện tích<br />- Loại đất <br />- Thông tin quy hoạch sử dụng đất<br />Lợi ích khi sử dụng bản đồ này là sẽ tra cứu mọi lúc mọi nơi, hiểu rõ hơn vị trí thửa đất và tiết kiệm thời gian.<br />* Lưu ý quan trọng: Thông tin hiển trị trên bản đồ này chỉ mang tính chất tham khảo. Để có thông tin pháp lý chính xác nhất, vui lòng liên hệ với cơ quan chức năng có thẩm quyền tại địa phương.';
+        };
+        abstract.addTo(map);
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        });
+        measureControl.addTo(map);
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].innerHTML = '';
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].className += ' fas fa-ruler';
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        function pop_That_0(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Số Tờ </th>\
+                        <td class="visible-with-data" id="SoTo">' + (feature.properties['SoTo'] !== null ? autolinker.link(String(feature.properties['SoTo']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Số Thửa</th>\
+                        <td class="visible-with-data" id="SoThua">' + (feature.properties['SoThua'] !== null ? autolinker.link(String(feature.properties['SoThua']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Mã đất</th>\
+                        <td class="visible-with-data" id="MaDat">' + (feature.properties['MaDat'] !== null ? autolinker.link(String(feature.properties['MaDat']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Loại đất</th>\
+                        <td class="visible-with-data" id="LoaiDat">' + (feature.properties['LoaiDat'] !== null ? autolinker.link(String(feature.properties['LoaiDat']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Diện tích (m2)</th>\
+                        <td class="visible-with-data" id="DienTich">' + (feature.properties['DienTich'] !== null ? autolinker.link(String(feature.properties['DienTich']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Ghi chú </th>\
+                        <td class="visible-with-data" id="GhiChu">' + (feature.properties['GhiChu'] !== null ? autolinker.link(String(feature.properties['GhiChu']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Quy hoạch đến 2030</th>\
+                        <td class="visible-with-data" id="SauQH">' + (feature.properties['SauQH'] !== null ? autolinker.link(String(feature.properties['SauQH']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_That_0_0(feature) {
+            switch(String(feature.properties['MaDat'])) {
+                case 'BCS':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,254,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'BHK':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,240,180,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'CCC':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,170,160,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'COC':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,100,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'COT':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,89,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'DCH':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,170,160,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'DCS':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,254,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'DGD':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,170,160,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'DGT':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,170,50,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'DNT':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(250,170,160,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'DTS':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(250,170,160,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'DTT':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,170,160,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'DVH':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,170,160,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'DYT':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,170,160,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'GD0':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,100,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'GT0':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,100,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'LMU':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,0,0,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'LNC':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,100,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'LNK':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,100,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'LNQ':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,100,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'LUC':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,252,140,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'LUK':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,252,150,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'MNC':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(180,255,255,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'NCS':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(230,230,200,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'NHK':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,240,180,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'NTD':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(210,210,210,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'NTT':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,100,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'ODT':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,160,255,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'ODT+BHK':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,160,255,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'QPH':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,100,80,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'RAC':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(205,170,205,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'RPT':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(190,255,30,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'RST':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(180,255,180,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'SKC':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(250,170,160,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'SKS':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(205,170,205,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'SON':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(160,255,255,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'TIN':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,170,160,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'TL0':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,100,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'TON':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,170,160,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'TSL':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(170,255,255,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'TSN':
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(170,255,255,1.0)',
+                interactive: true,
+            }
+                    break;
+                default:
+                    return {
+                pane: 'pane_That_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(135,158,78,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_That_0');
+        map.getPane('pane_That_0').style.zIndex = 400;
+        map.getPane('pane_That_0').style['mix-blend-mode'] = 'normal';
+        var layer_That_0 = new L.geoJson(json_That_0, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_That_0',
+            layerName: 'layer_That_0',
+            pane: 'pane_That_0',
+            onEachFeature: pop_That_0,
+            style: style_That_0_0,
+        });
+        bounds_group.addLayer(layer_That_0);
+        map.addLayer(layer_That_0);
+        function pop_Quyhoch_1(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">MaDatQH</th>\
+                        <td class="visible-with-data" id="MaDatQH">' + (feature.properties['MaDatQH'] !== null ? autolinker.link(String(feature.properties['MaDatQH']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">LoaiDatQH</th>\
+                        <td class="visible-with-data" id="LoaiDatQH">' + (feature.properties['LoaiDatQH'] !== null ? autolinker.link(String(feature.properties['LoaiDatQH']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">GhiChu</th>\
+                        <td class="visible-with-data" id="GhiChu">' + (feature.properties['GhiChu'] !== null ? autolinker.link(String(feature.properties['GhiChu']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">DT_QH</th>\
+                        <td class="visible-with-data" id="DT_QH">' + (feature.properties['DT_QH'] !== null ? autolinker.link(String(feature.properties['DT_QH']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Quyhoch_1_0(feature) {
+            switch(String(feature.properties['MaDatQH'])) {
+                case 'CAN':
+                    return {
+                pane: 'pane_Quyhoch_1',
+                opacity: 1,
+                color: 'rgba(227,26,28,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,80,70,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'DCH':
+                    return {
+                pane: 'pane_Quyhoch_1',
+                opacity: 1,
+                color: 'rgba(227,26,28,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,170,160,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'DGD':
+                    return {
+                pane: 'pane_Quyhoch_1',
+                opacity: 1,
+                color: 'rgba(227,26,28,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,170,160,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'DGT':
+                    return {
+                pane: 'pane_Quyhoch_1',
+                opacity: 1,
+                color: 'rgba(227,26,28,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,170,50,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'DRA':
+                    return {
+                pane: 'pane_Quyhoch_1',
+                opacity: 1,
+                color: 'rgba(227,26,28,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(205,170,205,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'DSH':
+                    return {
+                pane: 'pane_Quyhoch_1',
+                opacity: 1,
+                color: 'rgba(227,26,28,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,170,160,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'DTL':
+                    return {
+                pane: 'pane_Quyhoch_1',
+                opacity: 1,
+                color: 'rgba(227,26,28,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(170,255,255,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'DTT':
+                    return {
+                pane: 'pane_Quyhoch_1',
+                opacity: 1,
+                color: 'rgba(227,26,28,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,170,160,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'MNC':
+                    return {
+                pane: 'pane_Quyhoch_1',
+                opacity: 1,
+                color: 'rgba(227,26,28,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(180,255,255,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'NKH':
+                    return {
+                pane: 'pane_Quyhoch_1',
+                opacity: 1,
+                color: 'rgba(227,26,28,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(245,255,180,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'NTS':
+                    return {
+                pane: 'pane_Quyhoch_1',
+                opacity: 1,
+                color: 'rgba(227,26,28,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(170,255,255,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'ODT':
+                    return {
+                pane: 'pane_Quyhoch_1',
+                opacity: 1,
+                color: 'rgba(227,26,28,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,160,255,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'RSX':
+                    return {
+                pane: 'pane_Quyhoch_1',
+                opacity: 1,
+                color: 'rgba(227,26,28,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(180,255,180,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'SKN':
+                    return {
+                pane: 'pane_Quyhoch_1',
+                opacity: 1,
+                color: 'rgba(227,26,28,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(250,170,160,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'SKX':
+                    return {
+                pane: 'pane_Quyhoch_1',
+                opacity: 1,
+                color: 'rgba(227,26,28,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(205,170,205,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'TMD':
+                    return {
+                pane: 'pane_Quyhoch_1',
+                opacity: 1,
+                color: 'rgba(227,26,28,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(250,170,160,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'TSC':
+                    return {
+                pane: 'pane_Quyhoch_1',
+                opacity: 1,
+                color: 'rgba(227,26,28,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,170,160,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_Quyhoch_1');
+        map.getPane('pane_Quyhoch_1').style.zIndex = 401;
+        map.getPane('pane_Quyhoch_1').style['mix-blend-mode'] = 'normal';
+        var layer_Quyhoch_1 = new L.geoJson(json_Quyhoch_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Quyhoch_1',
+            layerName: 'layer_Quyhoch_1',
+            pane: 'pane_Quyhoch_1',
+            onEachFeature: pop_Quyhoch_1,
+            style: style_Quyhoch_1_0,
+        });
+        bounds_group.addLayer(layer_Quyhoch_1);
+        function pop_Ranhgiikhudulch_2(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Level'] !== null ? autolinker.link(String(feature.properties['Level']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ColorIndex'] !== null ? autolinker.link(String(feature.properties['ColorIndex']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['MaDatQH'] !== null ? autolinker.link(String(feature.properties['MaDatQH']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LoaiDatQH'] !== null ? autolinker.link(String(feature.properties['LoaiDatQH']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['GhiChu'] !== null ? autolinker.link(String(feature.properties['GhiChu']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DT_QH'] !== null ? autolinker.link(String(feature.properties['DT_QH']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Ranhgiikhudulch_2_0() {
+            return {
+                pane: 'pane_Ranhgiikhudulch_2',
+                opacity: 1,
+                color: 'rgba(43,215,227,1.0)',
+                dashArray: '',
+                lineCap: 'round',
+                lineJoin: 'round',
+                weight: 6.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_Ranhgiikhudulch_2');
+        map.getPane('pane_Ranhgiikhudulch_2').style.zIndex = 402;
+        map.getPane('pane_Ranhgiikhudulch_2').style['mix-blend-mode'] = 'normal';
+        var layer_Ranhgiikhudulch_2 = new L.geoJson(json_Ranhgiikhudulch_2, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_Ranhgiikhudulch_2',
+            layerName: 'layer_Ranhgiikhudulch_2',
+            pane: 'pane_Ranhgiikhudulch_2',
+            onEachFeature: pop_Ranhgiikhudulch_2,
+            style: style_Ranhgiikhudulch_2_0,
+        });
+        bounds_group.addLayer(layer_Ranhgiikhudulch_2);
+        map.addLayer(layer_Ranhgiikhudulch_2);
+        var overlaysTree = [
+            {label: '<img src="legend/Ranhgiikhudulch_2.png" /> Ranh giới khu du lịch ', layer: layer_Ranhgiikhudulch_2},
+            {label: 'Quy hoạch<br /><table><tr><td style="text-align: center;"><img src="legend/Quyhoch_1_Đấtanninh0.png" /></td><td>Đất an ninh</td></tr><tr><td style="text-align: center;"><img src="legend/Quyhoch_1_Đấtchợ1.png" /></td><td>Đất chợ</td></tr><tr><td style="text-align: center;"><img src="legend/Quyhoch_1_Đấtcơsởgiáodụcđàotạo2.png" /></td><td>Đất cơ sở giáo dục - đào tạo</td></tr><tr><td style="text-align: center;"><img src="legend/Quyhoch_1_Đấtgiaothông3.png" /></td><td>Đất giao thông</td></tr><tr><td style="text-align: center;"><img src="legend/Quyhoch_1_Đấtcôngtrìnhxửlýchấtthải4.png" /></td><td>Đất công trình xử lý chất thải</td></tr><tr><td style="text-align: center;"><img src="legend/Quyhoch_1_Đấtsinhhoạtcộngđồng5.png" /></td><td>Đất sinh hoạt cộng đồng</td></tr><tr><td style="text-align: center;"><img src="legend/Quyhoch_1_Đấtthủylợi6.png" /></td><td>Đất thủy lợi</td></tr><tr><td style="text-align: center;"><img src="legend/Quyhoch_1_Đấtxâydựngcơsởthểdụcthểthao7.png" /></td><td>Đất xây dựng cơ sở thể dục thể thao</td></tr><tr><td style="text-align: center;"><img src="legend/Quyhoch_1_Đấtmặtnướcchuyêndùng8.png" /></td><td>Đất mặt nước chuyên dùng</td></tr><tr><td style="text-align: center;"><img src="legend/Quyhoch_1_Đấtnươngrẫytrồngcâyhằngnămkhác9.png" /></td><td>Đất nương rẫy trồng cây hằng năm khác</td></tr><tr><td style="text-align: center;"><img src="legend/Quyhoch_1_Đấtnuôitrồngthủysản10.png" /></td><td>Đất nuôi trồng thủy sản</td></tr><tr><td style="text-align: center;"><img src="legend/Quyhoch_1_Đấtởđôthị11.png" /></td><td>Đất ở đô thị</td></tr><tr><td style="text-align: center;"><img src="legend/Quyhoch_1_Đấtrừngsảnxuất12.png" /></td><td>Đất rừng sản xuất</td></tr><tr><td style="text-align: center;"><img src="legend/Quyhoch_1_Đấtcụmcôngnghiệp13.png" /></td><td>Đất cụm công nghiệp</td></tr><tr><td style="text-align: center;"><img src="legend/Quyhoch_1_Đấtsảnxuấtvậtliệuxâydựnglàmđồgốm14.png" /></td><td>Đất sản xuất vật liệu xây dựng, làm đồ gốm</td></tr><tr><td style="text-align: center;"><img src="legend/Quyhoch_1_Đấtthươngmạidịchvụ15.png" /></td><td>Đất thương mại dịch vụ</td></tr><tr><td style="text-align: center;"><img src="legend/Quyhoch_1_Đấtxâydựngtrụsởcơquan16.png" /></td><td>Đất xây dựng trụ sở cơ quan</td></tr></table>', layer: layer_Quyhoch_1},
+            {label: 'Thửa đất<br /><table><tr><td style="text-align: center;"><img src="legend/That_0_Đấtbằngchưasửdụng0.png" /></td><td>Đất bằng chưa sử dụng</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấtbằngtrồngcâyhằngnămkhác1.png" /></td><td>Đất bằng trồng cây hằng năm khác</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấtsửdụngvàomụcđíchcôngcộng2.png" /></td><td>Đất sử dụng vào mục đích công cộng</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấtcỏdùngvàochănnuôi3.png" /></td><td>Đất cỏ dùng vào chăn nuôi</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấttrồngcỏ4.png" /></td><td>Đất trồng cỏ</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấtchợ5.png" /></td><td>Đất chợ</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấtđồinúichưasửdụng6.png" /></td><td>Đất đồi núi chưa sử dụng</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấtxâydựngcơsởgiáodụcvàđàotạo7.png" /></td><td>Đất xây dựng cơ sở giáo dục và đào tạo</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấtgiaothông8.png" /></td><td>Đất giao thông </td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấtxâydựngtrụsởtổchứcsựnghiệp9.png" /></td><td>Đất xây dựng trụ sở tổ chức sự nghiệp</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấtxâydựngtrụsởtổchứcsựnghiệp10.png" /></td><td>Đất xây dựng trụ sở tổ chức sự nghiệp</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấtxâydựngcơsởdịchvụxãhội11.png" /></td><td>Đất xây dựng cơ sở dịch vụ xã hội</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấtxâydựngcơsởvănhóa12.png" /></td><td>Đất xây dựng cơ sở văn hóa</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấtxâydựngcơsởytế13.png" /></td><td>Đất xây dựng cơ sở y tế</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấtcơsởgiáodụcđàotạokhôngkinhdoanh14.png" /></td><td>Đất cơ sở giáo dục đào tạo không kinh doanh </td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đườnggiaothôngkhôngkinhdoanh15.png" /></td><td>Đường giao thông không kinh doanh </td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấtlàmmuối16.png" /></td><td>Đất làm muối</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấttrồngcâycôngnghiệplâunăm17.png" /></td><td>Đất trồng cây công nghiệp lâu năm</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấttrồngcâylâunămthuộcnhómđấtnôngnghiệp18.png" /></td><td>Đất trồng cây lâu năm thuộc nhóm đất nông nghiệp</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấttrồngcâyănquảlâunăm19.png" /></td><td>Đất trồng cây ăn quả lâu năm</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấtchuyêntrồnglúa20.png" /></td><td>Đất chuyên trồng lúa</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấttrồnglúacònlại21.png" /></td><td>Đất trồng lúa còn lại</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấtcómặtnướcchuyêndùng22.png" /></td><td>Đất có mặt nước chuyên dùng</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấtnúiđákhôngcórừngcây23.png" /></td><td>Đất núi đá không có rừng cây</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấtnôngnghiệpởđịahìnhnươngrẫyhoặcsườnđồinúidùngđểtrồngcâyhàngnămnhưngkhôngphảilàlúa24.png" /></td><td>Đất nông nghiệp ở địa hình nương rẫy hoặc sườn đồi núi dùng để trồng cây hàng năm nhưng không phải là lúa</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấtnghĩatrangnghĩađịa25.png" /></td><td>Đất nghĩa trang, nghĩa địa</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấttrangtrại26.png" /></td><td>Đất trang trại</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấtởtạiđôthị27.png" /></td><td>Đất ở tại đô thị </td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấtởtạiđôthịkếthợpvớiđấtbằngtrồngcâyhằngnămkhác28.png" /></td><td>Đất ở tại đô thị kết hợp với đất bằng trồng cây hằng năm khác</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấtbiênphòng29.png" /></td><td>Đất biên phòng </td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấtbãirác30.png" /></td><td>Đất bãi rác</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấtcórừngphònghộ31.png" /></td><td>Đất có rừng phòng hộ </td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấtcórừngtrồngsẳnxuất32.png" /></td><td>Đất có rừng trồng sẳn xuất </td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấtcơsởsảnxuấtphinôngnghiệp33.png" /></td><td>Đất cơ sở sản xuất phi nông nghiệp</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấtsửdụngchohoạtđộngkhoángsản34.png" /></td><td>Đất sử dụng cho hoạt động khoáng sản</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấtsôngngòikênhrạchsuối35.png" /></td><td>Đất sông, ngòi, kênh, rạch, suối</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấttínngưỡng36.png" /></td><td>Đất tín ngưỡng</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấtthủylợikhôngkinhdoanh37.png" /></td><td>Đất thủy lợi không kinh doanh</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấttôngiáo38.png" /></td><td>Đất tôn giáo</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấtnuốitrồngthủysảnnướclợimặn39.png" /></td><td>Đất nuối trồng thủy sản nước lợi, mặn</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Đấtnuôitrồngthủysảnnướcngọt40.png" /></td><td>Đất nuôi trồng thủy sản nước ngọt</td></tr><tr><td style="text-align: center;"><img src="legend/That_0_Khuvựcnúicaokhôngđovẽ41.png" /></td><td>Khu vực núi cao không đo vẽ </td></tr></table>', layer: layer_That_0},]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: true,
+        });
+        lay.addTo(map);
+        setBounds();
+        map.addControl(new L.Control.Search({
+            layer: layer_That_0,
+            initial: false,
+            hideMarkerOnCollapse: true,
+            propertyName: 'ToThua'}));
+        if (typeof url === 'undefined') {
+            document.getElementsByClassName('search-button')[0].className += ' fa fa-binoculars';
+        } else {
+            document.getElementsByClassName('search-button')[1].className += ' fa fa-binoculars';
+        }
+        </script>
+    </body>
+</html>
